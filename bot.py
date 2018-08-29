@@ -43,10 +43,18 @@ def on_chat_message(msg):
                 num = 0
                 while os.path.isfile(nameFile) != False:
                     new = list(nameFile)
-                    new[len(nameFile)-5] = str(num)
-                    nameFile = ''.join(new)
-                    num += 1
-                    print("Ottenuto : ", nameFile)
+                    if num > 10:
+                        new[len(nameFile)-5] = str(num)
+                        del new[len(nameFile)-6]
+                        nameFile = ''.join(new)
+                        print("Ottenuto : ", nameFile)
+                        num += 1
+                    else:
+                        new[len(nameFile)-5] = str(num)
+                        nameFile = ''.join(new)
+                        num += 1
+                        print(num)
+                        print("Ottenuto : ", nameFile)
             
                 #keepFile.write(str(num))
                 #keepFile.close()
