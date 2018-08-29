@@ -1,57 +1,79 @@
-#Data creazione 21/08/2018
-# coding=utf-8
-
 import telepot
-import subprocess
-import speech_recognition as sr
-from pydub import AudioSegment
-
-recognizer_instance = sr.Recognizer()
+import os
 
 def on_chat_message(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
-    if content_type == 'voice':
-        name = msg["from"]["first_name"]
-        lon = msg["voice"]["duration"]
-        voiceName = msg["voice"]["file_id"]
-        mimeType = msg["voice"]["mime_type"]
-        bot.download_file(msg["voice"]["file_id"], './audio.ogg')
-        subprocess.call(['ffmpeg', '-v', 'quiet', '-y', '-i', 'audio.ogg', 'audio.wav'])
-        wav =  sr.AudioFile('audio.wav')
-        with wav as source:
-            recognizer_instance.pause_threshold = 3.0
-            audio = recognizer_instance.listen(source)
-            print('Elaborazione messaggio in corso...')
-            bot.sendMessage(chat_id, "Elaborazione...")
+    global caption
+    global num
+    global nameFile
+    #keepFile = open('num.txt', 'r')
+    #lista = []
+    #for val in keepFile.read().split():
+        #lista.append(int(val))
+    #keepFile.close()
+    #num = lista[0]
+    #print(num)
+    listaFoto = []
+    #keepFile = open('num.txt', 'w')
 
-        try:
-            text = recognizer_instance.recognize_google(audio, language="it-IT")
-            print("Sono riuscito a comprendere: \n", text)
-            bot.sendMessage(chat_id, "Messaggio: %s\n"%text)
-        except Exception as e:
-            print(e)
+    username = msg['from']['username']
 
-        bot.sendMessage(chat_id, "Il messaggio inviato è di tipo vocale!")
-        print('Utente: %s'%name)
-        if lon > 1:
-            print('Lunghezza audio: %d'%lon,'secondi')
-        else:
-            print('Lunghezza audio: %d'%lon,'secondo')
+    if username == 'Giusmat' or username == 'VeryRareBoyz' or username == 'Cr3sh':
+        print("Username corretto!")
+        if content_type == 'photo':
+            listaFoto.append(msg)
+            for x in listaFoto:
+                if 'caption' in x:
+                    caption = str(x['caption'])
+                    print(caption)
+                else:
+                    print("Caption non presente!")
+        
+            for x in listaFoto:
+                if not 'caption' in x:
+                    msg.update({'caption': caption})
+                    print("Aggiunto con successo!")
+                    print(listaFoto)
 
-TOKEN = '573952513:AAHp0U1TP_zBo4b-I2EVk_Sgk4EUPp8cNaA'
+        
+       
+            nameFile = caption.lower() +'0.png'
 
+            if os.path.isfile(nameFile) == True: #se il file esiste
+                num = 0
+                while os.path.isfile(nameFile) != False:
+                    new = list(nameFile)
+                    new[len(nameFile)-5] = str(num)
+                    nameFile = ''.join(new)
+                    num += 1
+                    print("Ottenuto : ", nameFile)
+            
+                #keepFile.write(str(num))
+                #keepFile.close()
+                bot.download_file(msg['photo'][-1]['file_id'], nameFile)
+            else:
+                bot.download_file(msg["photo"][-1]["file_id"], nameFile)
+
+        if content_type == 'text':
+            nome = msg['text'].lower()
+            #nameFile = str(msg['text'])+'0.png'
+            conta = 0
+            print(nome)
+            print(num)
+
+            for x in range(num):
+                name = str(nome)+str(conta)+'.png'
+                print(name)
+                bot.sendPhoto(chat_id, open(name, 'rb'))
+                conta += 1
+        
+            #print(msg,'\n\n\n')
+            #print("Caption messaggio : ", msg['caption'])
+
+TOKEN = "672480353:AAFo25cYizqnkNuqSOZ1jNR0eOTKOw7mR_M"
 bot = telepot.Bot(TOKEN)
-bot.message_loop(on_chat_message)
-
-print('Listening for inputs... ')
+bot.message_loop({'chat': on_chat_message})
 
 import time
-
 while 1:
     time.sleep(10)
-
-
-#DA RICORDARE
-
-#bot.sendMessage(chat_id, 'ciao %s, sono un bot molto stupido!'%name)
-#bot.sendMessage(chat_id, 'ho ricevuto questo : %s'%txt)
