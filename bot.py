@@ -78,7 +78,7 @@ def on_chat_message(msg):
             #print(msg,'\n\n\n')
             #print("Caption messaggio : ", msg['caption'])
 
-TOKEN = "672480353:AAFo25cYizqnkNuqSOZ1jNR0eOTKOw7mR_M"
+TOKEN = ""
 bot = telepot.Bot(TOKEN)
 bot.message_loop({'chat': on_chat_message})
 
